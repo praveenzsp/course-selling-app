@@ -8,36 +8,67 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum Role {
+  ADMIN
+  USER
+}
+
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
+  id               String       @id @default(cuid())
+  email            String       @unique
   password         String
   username         String
-  purchasedCourses Course[]
+  role             Role         @default(USER)
+  purchasedCourses CourseUser[]
+  sessions         Session[]
 }
 
 model Course {
-  id          String @id @default(cuid())
-  name        String
-  description String
-  price       Float
-  users       User[]
-  content     CourseContent[]
+  id           Int          @id @default(autoincrement())
+  name         String
+  description  String
+  price        Float
+  status       watchStatus  @default(NOTSTARTED)
+  progress     Float        @default(0)
+  users        CourseUser[]
+  rating       Float
+  discount     Float
+  thumbnailUrl String
+  bookmarked   Boolean      @default(false)
+  videos       Video[]
 }
 
-model CourseContent {
-  id      String @id @default(cuid())
-  name    String
-  url     String
-  courseId String
-  course  Course @relation(fields: [courseId], references: [id])
-  videos  Video[]
+model CourseUser {
+  userId      String
+  courseId    Int
+  user        User     @relation(fields: [userId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+  purchasedAt DateTime @default(now())
+
+  @@id([userId, courseId])
+}
+
+enum watchStatus {
+  WATCHED
+  NOTSTARTED
+  INPROGRESS
 }
 
 model Video {
-  id              String @id @default(cuid())
-  name            String
-  url             String
-  courseContentId String
-  courseContent   CourseContent @relation(fields: [courseContentId], references: [id])
+  id          Int         @id @default(autoincrement())
+  name        String
+  url         String
+  duration    Int?
+  watchStatus watchStatus @default(NOTSTARTED)
+  bookmark    Boolean     @default(false)
+  courseId    Int
+  course      Course      @relation(fields: [courseId], references: [id])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
