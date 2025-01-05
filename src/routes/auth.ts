@@ -44,32 +44,39 @@ router.post("/signup", async (req: Request, res: Response) => {
 router.post("/signin", async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  const result = userSchema.safeParse({ email, password });
-  if (result.success) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: {
-          email,
-        },
-      });
-      if (!user) {
-        res.status(404).json({ error: "User not found" });
-        return;
-      }
-      const passwordMatch = await bcrypt.compare(password, user.password);
-      if (!passwordMatch) {
-        res.status(401).json({ error: "Password is incorrect" });
-        return;
-      }
-      const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET!);
-      res.status(200).json({ message: "Signin successful", token });
-    } catch (error) {
-      res.status(500).json({ error: "Error signing in" });
+  const zodResult = userSchema.safeParse({ email, password });
+  if (!zodResult.success) {
+    res.status(400).json({ error: zodResult.error.errors });
+    return;
+  }
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
     }
-  } else {
-    res.status(400).json({ error: result.error.errors });
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
+    }
+
+    const token = jwt.sign(
+      {
+        email: user.email,
+        role: user.role,
+      },
+      process.env.JWT_SECRET!,
+    );
+
+    res.json({ message:`${user.username} signed in successfully`, token, role: user.role });
+  } catch (error) {
+    res.status(500).json({ error: "Error signing in" });
   }
 });
-
 
 export default router;

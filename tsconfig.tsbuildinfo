@@ -1,1 +1,1 @@
-{"root":["./src/db.ts","./src/index.ts","./src/types.ts","./src/middlewares/user.ts","./src/middlewares/videoaccess.ts","./src/routes/admin.ts","./src/routes/auth.ts","./src/routes/courses.ts","./src/routes/videos.ts"],"version":"5.7.2"}
+{"root":["./src/db.ts","./src/index.ts","./src/types.ts","./src/middlewares/admin.ts","./src/middlewares/user.ts","./src/middlewares/videoaccess.ts","./src/routes/admin.ts","./src/routes/auth.ts","./src/routes/courses.ts","./src/routes/videos.ts"],"version":"5.7.2"}

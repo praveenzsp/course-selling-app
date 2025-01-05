@@ -59,10 +59,10 @@ model Video {
   name        String
   url         String
   duration    Int?
-  watchStatus watchStatus @default(NOTSTARTED)
-  bookmark    Boolean     @default(false)
+  watchStatus watchStatus? @default(NOTSTARTED)
+  bookmark    Boolean?     @default(false)
   courseId    Int
-  course      Course      @relation(fields: [courseId], references: [id])
+  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
 }
 
 model Session {
