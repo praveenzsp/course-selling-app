@@ -57,7 +57,6 @@ enum watchStatus {
 model Video {
   id          Int         @id @default(autoincrement())
   name        String
-  url         String
   duration    Int?
   watchStatus watchStatus? @default(NOTSTARTED)
   bookmark    Boolean?     @default(false)

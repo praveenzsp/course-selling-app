@@ -9,7 +9,6 @@ router.use(express.json());
 
 router.post("/signup", async (req: Request, res: Response) => {
   const { email, password, username } = req.body;
-  // console.log(email, password, username);
 
   const user = await prisma.user.findUnique({
     where: {
@@ -37,7 +36,7 @@ router.post("/signup", async (req: Request, res: Response) => {
       res.status(500).json({ error: "Error creating user" });
     }
   } else {
-    res.status(400).json({ error: result.error.errors });
+    res.status(401).json({ error: result.error.errors });
   }
 });
 
@@ -61,7 +60,7 @@ router.post("/signin", async (req: Request, res: Response) => {
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      res.status(401).json({ error: "Invalid credentials" });
+      res.status(401).json({ error: "Password is incorrect" });
       return;
     }
 
@@ -70,10 +69,17 @@ router.post("/signin", async (req: Request, res: Response) => {
         email: user.email,
         role: user.role,
       },
-      process.env.JWT_SECRET!,
+      process.env.JWT_SECRET!
     );
 
-    res.json({ message:`${user.username} signed in successfully`, token, role: user.role });
+    res
+      .status(200)
+      .json({
+        message: `${user.username} signed in successfully`,
+        token,
+        role: user.role,
+        user: {username: user.username, email: user.email, userId: user.id},
+      });
   } catch (error) {
     res.status(500).json({ error: "Error signing in" });
   }

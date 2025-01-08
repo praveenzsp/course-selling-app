@@ -6,7 +6,7 @@ import prisma from "../db";
 
 const router = express.Router();
 
-router.get(
+router.post(
   "/:courseId/:videoId",
   authMiddleware,
   contentAccessMiddleware,

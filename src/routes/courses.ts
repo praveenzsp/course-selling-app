@@ -1,4 +1,3 @@
-import { Course } from "./../../node_modules/.prisma/client/index.d";
 import express, { Request, Response } from "express";
 import prisma from "../db";
 import authMiddleware from "../middlewares/user";
@@ -17,13 +16,17 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 router.get("/purchased", async (req: Request, res: Response) => {
-  const { userId } = req.body;
+  const userId = req.query.userId as string;
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
     },
     include: {
-      purchasedCourses: true,
+      purchasedCourses: {
+        include:{
+          course: true
+        }
+      },
     },
   });
 
@@ -32,7 +35,7 @@ router.get("/purchased", async (req: Request, res: Response) => {
     return;
   }
 
-  res.status(200).json(user.purchasedCourses.map((course) => course.courseId));
+  res.status(200).json(user.purchasedCourses);
 });
 
 router.post("/buyCourse", async (req: Request, res: Response) => {
@@ -74,23 +77,24 @@ router.post("/buyCourse", async (req: Request, res: Response) => {
         course: true,
       },
     });
-    res
-      .status(200)
-      .json({
-        message: "Course purchased successfully",
-        course: boughtCourse.course,
-      });
+    res.status(200).json({
+      message: "Course purchased successfully",
+      course: boughtCourse.course,
+    });
   } catch (error) {
     res.status(500).json({ error: "Course purchase failed" });
   }
 });
 
-router.get("/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.get("/:courseId", async (req: Request, res: Response) => {
+  const { courseId } = req.params;
   try {
     const course = await prisma.course.findUnique({
       where: {
-        id: parseInt(id),
+        id: parseInt(courseId),
+      },
+      include: {
+        videos: true,
       },
     });
     if (!course) {
