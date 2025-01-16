@@ -7,9 +7,11 @@ import jwt from "jsonwebtoken";
 const router = express.Router();
 router.use(express.json());
 
+// Route for user signup
 router.post("/signup", async (req: Request, res: Response) => {
   const { email, password, username } = req.body;
 
+  // Check if user already exists
   const user = await prisma.user.findUnique({
     where: {
       email,
@@ -20,10 +22,13 @@ router.post("/signup", async (req: Request, res: Response) => {
     return;
   }
 
+  // Validate user input using Zod schema
   const result = userSchema.safeParse({ email, password, username });
   if (result.success) {
     try {
+      // Hash the password before storing it
       const hashedPassword = await bcrypt.hash(password, 10);
+      // Create new user in the database
       const user = await prisma.user.create({
         data: {
           email,
@@ -40,15 +45,18 @@ router.post("/signup", async (req: Request, res: Response) => {
   }
 });
 
+// Route for user signin
 router.post("/signin", async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
+  // Validate user input using Zod schema
   const zodResult = userSchema.safeParse({ email, password });
   if (!zodResult.success) {
     res.status(400).json({ error: zodResult.error.errors });
     return;
   }
   try {
+    // Find user by email
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -58,12 +66,14 @@ router.post("/signin", async (req: Request, res: Response) => {
       return;
     }
 
+    // Compare provided password with stored hashed password
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       res.status(401).json({ error: "Password is incorrect" });
       return;
     }
 
+    // Generate JWT token
     const token = jwt.sign(
       {
         email: user.email,

@@ -6,6 +6,7 @@ const router = express.Router();
 router.use(express.json());
 router.use(authMiddleware);
 
+// Route to get all courses
 router.get("/", async (req: Request, res: Response) => {
   try {
     const allCourses = await prisma.course.findMany();
@@ -15,6 +16,7 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
+// Route to get all purchased courses for a user
 router.get("/purchased", async (req: Request, res: Response) => {
   const userId = req.query.userId as string;
   const user = await prisma.user.findUnique({
@@ -38,6 +40,7 @@ router.get("/purchased", async (req: Request, res: Response) => {
   res.status(200).json(user.purchasedCourses);
 });
 
+// Route to buy a course
 router.post("/buyCourse", async (req: Request, res: Response) => {
   const { userId, courseId } = req.body;
 
@@ -46,7 +49,7 @@ router.post("/buyCourse", async (req: Request, res: Response) => {
     return;
   }
 
-  //check if user already bought the course
+  // Check if user already bought the course
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -66,7 +69,7 @@ router.post("/buyCourse", async (req: Request, res: Response) => {
     res.status(403).json({ error: "You already have access to this course" });
     return;
   }
-  // if user has not bought the course, add the course to the user's purchased courses
+  // If user has not bought the course, add the course to the user's purchased courses
   try {
     const boughtCourse = await prisma.courseUser.create({
       data: {
@@ -86,6 +89,7 @@ router.post("/buyCourse", async (req: Request, res: Response) => {
   }
 });
 
+// Route to get a specific course by ID
 router.get("/:courseId", async (req: Request, res: Response) => {
   const { courseId } = req.params;
   try {
@@ -103,7 +107,7 @@ router.get("/:courseId", async (req: Request, res: Response) => {
     }
     res.status(200).json(course);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Errorrrr" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

@@ -175,7 +175,8 @@ router.post("/add-video/:courseId", async (req: Request, res: Response) => {
     // Check if video already exists for this course
     const existingVideo = await prisma.video.findFirst({
       where: {
-        AND: [{ courseId }, { url }],
+        name,
+        courseId,
       },
     });
 
@@ -190,7 +191,6 @@ router.post("/add-video/:courseId", async (req: Request, res: Response) => {
     const newVideo = await prisma.video.create({
       data: {
         name,
-        url,
         courseId,
       },
     });
@@ -225,8 +225,7 @@ router.put("/update-video/:videoId", async (req: Request, res: Response) => {
     const updatedVideo = await prisma.video.update({
       where: { id: videoId },
       data: {
-	name: name || existingVideo.name,
-	url: url || existingVideo.url,
+        name: name || existingVideo.name,
       },
     });
 
@@ -241,7 +240,6 @@ router.put("/update-video/:videoId", async (req: Request, res: Response) => {
 });
 
 // Route to delete a video from a specific course
-
 router.delete("/delete-video/:videoId", async (req: Request, res: Response) => {
   const videoId = parseInt(req.params.videoId);
 
