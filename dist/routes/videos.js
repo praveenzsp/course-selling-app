@@ -40,11 +40,12 @@ videoAccess_1.checkCourseAccess, // Middleware to check if the user has access t
         // Parameters for generating the signed URL
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
-            Key: videoMetadata.name || "demo5.mp4", // Use video name from metadata or a default value
+            Key: "demo5.mp4", // Use video name from metadata or a default value
             Expires: 60 * 15, // URL expiration time in seconds (15 minutes)
         };
         // Generate the signed URL
         const signedUrl = yield aws_1.default.getSignedUrlPromise("getObject", params);
+        console.log(signedUrl);
         // Return the video metadata along with the signed URL
         res.status(200).json(Object.assign(Object.assign({}, videoMetadata), { signedUrl }));
     }
