@@ -33,7 +33,8 @@ router.post(
       // Parameters for generating the signed URL
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
-        Key: "demo5.mp4", // Use video name from metadata or a default value
+        // Key: "demo5.mp4", // Use video name from metadata or a default value
+        Key: "photography_for_beginners.mp4", // Use video name from metadata or a default value
         Expires: 60 * 15, // URL expiration time in seconds (15 minutes)
       };
 
